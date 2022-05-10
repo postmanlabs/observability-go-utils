@@ -5,24 +5,26 @@ import (
 	"sort"
 
 	"github.com/pkg/errors"
+	"golang.org/x/exp/constraints"
 	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 )
 
-type Set[T comparable] map[T]struct{}
+type OrderedSet[T constraints.Ordered] map[T]struct{}
 
-func NewSet[T comparable](vs ...T) Set[T] {
-	s := make(Set[T], len(vs))
+func NewOrderedSet[T constraints.Ordered](vs ...T) OrderedSet[T] {
+	s := make(OrderedSet[T], len(vs))
 	for _, v := range vs {
 		s.Insert(v)
 	}
 	return s
 }
 
-func (s Set[T]) Contains(v T) bool {
+func (s OrderedSet[T]) Contains(v T) bool {
 	return s.ContainsAny(v)
 }
 
-func (s Set[T]) ContainsAny(vs ...T) bool {
+func (s OrderedSet[T]) ContainsAny(vs ...T) bool {
 	for _, v := range vs {
 		_, exists := s[v]
 		if exists {
@@ -32,7 +34,7 @@ func (s Set[T]) ContainsAny(vs ...T) bool {
 	return false
 }
 
-func (s Set[T]) ContainsAll(vs ...T) bool {
+func (s OrderedSet[T]) ContainsAll(vs ...T) bool {
 	for _, v := range vs {
 		_, exists := s[v]
 		if !exists {
@@ -42,25 +44,25 @@ func (s Set[T]) ContainsAll(vs ...T) bool {
 	return true
 }
 
-func (s Set[T]) Insert(vs ...T) {
+func (s OrderedSet[T]) Insert(vs ...T) {
 	for _, v := range vs {
 		s[v] = struct{}{}
 	}
 }
 
-func (s Set[T]) Delete(vs ...T) {
+func (s OrderedSet[T]) Delete(vs ...T) {
 	for _, v := range vs {
 		delete(s, v)
 	}
 }
 
-func (s Set[T]) Union(other Set[T]) {
+func (s OrderedSet[T]) Union(other OrderedSet[T]) {
 	for k := range other {
 		s.Insert(k)
 	}
 }
 
-func (s Set[T]) Intersect(other Set[T]) {
+func (s OrderedSet[T]) Intersect(other OrderedSet[T]) {
 	var toDelete []T
 	for k := range s {
 		if _, exists := other[k]; !exists {
@@ -72,39 +74,41 @@ func (s Set[T]) Intersect(other Set[T]) {
 	}
 }
 
-func (s Set[T]) MarshalJSON() ([]byte, error) {
+// Marshals as a sorted slice.
+func (s OrderedSet[T]) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.AsSlice())
 }
 
-func (s *Set[T]) UnmarshalJSON(text []byte) error {
+func (s *OrderedSet[T]) UnmarshalJSON(text []byte) error {
 	var slice []T
 	if err := json.Unmarshal(text, &slice); err != nil {
 		return errors.Wrapf(err, "failed to unmarshal stringset")
 	}
-	*s = make(Set[T], len(slice))
+	*s = make(OrderedSet[T], len(slice))
 	for _, elt := range slice {
 		(*s)[elt] = struct{}{}
 	}
 	return nil
 }
 
-func (s Set[T]) Clone() Set[T] {
+func (s OrderedSet[T]) Clone() OrderedSet[T] {
 	return maps.Clone(s)
 }
 
-// AsSlice returns the set as a slice in a nondeterministic order.
-func (s Set[T]) AsSlice() []T {
+// AsSlice returns the set as a sorted slice.
+func (s OrderedSet[T]) AsSlice() []T {
 	rv := make([]T, 0, len(s))
 	for x, _ := range s {
 		rv = append(rv, x)
 	}
+	slices.Sort(rv)
 	return rv
 }
 
 // Creates a new set from the intersection of sets.
-func Intersect[T comparable](sets ...Set[T]) Set[T] {
+func IntersectOrdered[T constraints.Ordered](sets ...OrderedSet[T]) OrderedSet[T] {
 	if len(sets) == 0 {
-		return Set[T]{}
+		return OrderedSet[T]{}
 	}
 
 	// Sort by set length.  Starting with the smallest set reduces
