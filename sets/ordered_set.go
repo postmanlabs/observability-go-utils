@@ -13,65 +13,35 @@ import (
 type OrderedSet[T constraints.Ordered] map[T]struct{}
 
 func NewOrderedSet[T constraints.Ordered](vs ...T) OrderedSet[T] {
-	s := make(OrderedSet[T], len(vs))
-	for _, v := range vs {
-		s.Insert(v)
-	}
-	return s
+	return OrderedSet[T](NewSet[T](vs...))
 }
 
 func (s OrderedSet[T]) Contains(v T) bool {
-	return s.ContainsAny(v)
+	return Set[T](s).Contains(v)
 }
 
 func (s OrderedSet[T]) ContainsAny(vs ...T) bool {
-	for _, v := range vs {
-		_, exists := s[v]
-		if exists {
-			return true
-		}
-	}
-	return false
+	return Set[T](s).ContainsAny(vs...)
 }
 
 func (s OrderedSet[T]) ContainsAll(vs ...T) bool {
-	for _, v := range vs {
-		_, exists := s[v]
-		if !exists {
-			return false
-		}
-	}
-	return true
+	return Set[T](s).ContainsAll(vs...)
 }
 
 func (s OrderedSet[T]) Insert(vs ...T) {
-	for _, v := range vs {
-		s[v] = struct{}{}
-	}
+	Set[T](s).Insert(vs...)
 }
 
 func (s OrderedSet[T]) Delete(vs ...T) {
-	for _, v := range vs {
-		delete(s, v)
-	}
+	Set[T](s).Delete(vs...)
 }
 
 func (s OrderedSet[T]) Union(other OrderedSet[T]) {
-	for k := range other {
-		s.Insert(k)
-	}
+	Set[T](s).Union(Set[T](other))
 }
 
 func (s OrderedSet[T]) Intersect(other OrderedSet[T]) {
-	var toDelete []T
-	for k := range s {
-		if _, exists := other[k]; !exists {
-			toDelete = append(toDelete, k)
-		}
-	}
-	for _, k := range toDelete {
-		delete(s, k)
-	}
+	Set[T](s).Intersect(Set[T](other))
 }
 
 // Marshals as a sorted slice.
