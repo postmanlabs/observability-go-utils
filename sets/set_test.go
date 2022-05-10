@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestBasicOperations(t *testing.T) {
+func TestBasicSetOperations(t *testing.T) {
 	s := NewSet[int]()
 	assert.Equal(t, len(s), 0)
 	assert.Equal(t, map[int]struct{}(s), map[int]struct{}{})
@@ -25,7 +25,7 @@ func TestBasicOperations(t *testing.T) {
 	assert.Equal(t, s, NewSet(2))
 }
 
-func TestJson(t *testing.T) {
+func TestSetJson(t *testing.T) {
 	s := NewSet[int](3, 2, 1)
 
 	bs, err := json.Marshal(s)
@@ -38,12 +38,31 @@ func TestJson(t *testing.T) {
 	assert.Equal(t, deserialized, s, "s == unmarshal(marshal(s))")
 }
 
-func TestJsonOrdering(t *testing.T) {
-	bs1, err := json.Marshal(NewSet(1, 2, 3))
-	assert.NoError(t, err)
+func TestSetIntersect(t *testing.T) {
+	testCases := []struct {
+		name     string
+		sets     []Set[int]
+		expected Set[int]
+	}{
+		{
+			name:     "empty",
+			sets:     nil,
+			expected: NewSet[int](),
+		},
+		{
+			name:     "overlap",
+			sets:     []Set[int]{NewSet(1, 2), NewSet(2, 3)},
+			expected: NewSet(2),
+		},
+		{
+			name:     "no overlap",
+			sets:     []Set[int]{NewSet(1, 2), NewSet(3, 4)},
+			expected: NewSet[int](),
+		},
+	}
 
-	bs2, err := json.Marshal(NewSet(3, 2, 1))
-	assert.NoError(t, err)
-
-	assert.Equal(t, string(bs1), string(bs2), "marshal(s) == marshal(s)")
+	for _, tc := range testCases {
+		intersected := Intersect(tc.sets...)
+		assert.Equal(t, tc.expected, intersected, tc.name)
+	}
 }

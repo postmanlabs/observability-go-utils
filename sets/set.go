@@ -2,16 +2,15 @@ package sets
 
 import (
 	"encoding/json"
+	"sort"
 
 	"github.com/pkg/errors"
-	"golang.org/x/exp/constraints"
 	"golang.org/x/exp/maps"
-	"golang.org/x/exp/slices"
 )
 
-type Set[T constraints.Ordered] map[T]struct{}
+type Set[T comparable] map[T]struct{}
 
-func NewSet[T constraints.Ordered](vs ...T) Set[T] {
+func NewSet[T comparable](vs ...T) Set[T] {
 	s := make(Set[T], len(vs))
 	for _, v := range vs {
 		s.Insert(v)
@@ -74,12 +73,7 @@ func (s Set[T]) Intersect(other Set[T]) {
 }
 
 func (s Set[T]) MarshalJSON() ([]byte, error) {
-	slice := make([]T, 0, len(s))
-	for k := range s {
-		slice = append(slice, k)
-	}
-	slices.Sort(slice)
-	return json.Marshal(slice)
+	return json.Marshal(s.AsSlice())
 }
 
 func (s *Set[T]) UnmarshalJSON(text []byte) error {
@@ -98,12 +92,31 @@ func (s Set[T]) Clone() Set[T] {
 	return maps.Clone(s)
 }
 
-// AsSlice returns the set as a sorted slice.
+// AsSlice returns the set as a slice in a nondeterministic order.
 func (s Set[T]) AsSlice() []T {
 	rv := make([]T, 0, len(s))
 	for x, _ := range s {
 		rv = append(rv, x)
 	}
-	slices.Sort(rv)
 	return rv
+}
+
+// Creates a new set from the intersection of sets.
+func Intersect[T comparable](sets ...Set[T]) Set[T] {
+	if len(sets) == 0 {
+		return Set[T]{}
+	}
+
+	// Sort by set length.  Starting with the smallest set reduces
+	// the work we need to do.
+	sort.Slice(sets, func(i, j int) bool {
+		return len(sets[i]) < len(sets[j])
+	})
+
+	base := sets[0].Clone()
+	for _, next := range sets[1:] {
+		base.Intersect(next)
+	}
+
+	return base
 }
