@@ -49,6 +49,17 @@ func (m ComplexKeyMap[K, V]) GetOrCompute(k K, computeValue func() (V, error)) (
 	return v, nil
 }
 
+// A version of GetOrCompute that is guaranteed to not error.
+func (m ComplexKeyMap[K, V]) GetOrComputeNoError(k K, computeValue func() V) V {
+	if v, exists := m[k]; exists {
+		return v
+	}
+
+	v := computeValue()
+	m[k] = v
+	return v
+}
+
 // Returns the value associated with the given key k. If the key does not
 // already exist in the map, the supplied default value is entered into the map
 // and returned.
@@ -64,6 +75,10 @@ func (m ComplexKeyMap[K, V]) GetOrDefault(k K, defaultValue V) V {
 func (m ComplexKeyMap[K, V]) ContainsKey(k K) bool {
 	_, exists := m[k]
 	return exists
+}
+
+func (m ComplexKeyMap[K, V]) Delete(k K) {
+	delete(m, k)
 }
 
 func (m ComplexKeyMap[K, V]) IsEmpty() bool {

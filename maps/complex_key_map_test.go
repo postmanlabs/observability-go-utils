@@ -43,6 +43,9 @@ func TestBasicComplexKeyMapOperations(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, result, 42)
 
+	result = m.GetOrComputeNoError(foo, func() int { return 37 })
+	assert.Equal(t, result, 42)
+
 	assert.False(t, m.ContainsKey(qux))
 
 	_, err = m.GetOrCompute(qux, func() (int, error) { return 37, fmt.Errorf("error") })
@@ -50,6 +53,14 @@ func TestBasicComplexKeyMapOperations(t *testing.T) {
 
 	result, err = m.GetOrCompute(qux, func() (int, error) { return 37, nil })
 	assert.NoError(t, err)
+	assert.Equal(t, result, 37)
+	assert.Equal(t, m.Get(qux), 37)
+
+	assert.True(t, m.ContainsKey(qux))
+	m.Delete(qux)
+	assert.False(t, m.ContainsKey(qux))
+
+	result = m.GetOrComputeNoError(qux, func() int { return 37 })
 	assert.Equal(t, result, 37)
 	assert.Equal(t, m.Get(qux), 37)
 }
