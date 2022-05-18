@@ -1,7 +1,5 @@
 package optionals
 
-import "fmt"
-
 type Optional[T any] struct {
 	value *T
 }
@@ -24,13 +22,13 @@ func (opt Optional[T]) IsNone() bool {
 	return opt.value == nil
 }
 
-func (opt Optional[T]) Get() (T, error) {
-	var result T
+func (opt Optional[T]) Get() (T, bool) {
+	var defaultResult T
 	if opt.IsNone() {
-		return result, fmt.Errorf("attempted to Get a None")
+		return defaultResult, false
 	}
 
-	return *opt.value, nil
+	return *opt.value, true
 }
 
 // Returns the value inhabiting this option. If this is None, then returns the
