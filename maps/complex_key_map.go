@@ -40,10 +40,10 @@ func (m ComplexKeyMap[K, V]) GetOrComputeNoError(k K, computeValue func() V) V {
 }
 
 // Returns the value associated with the given key k. If the key does not
-// already exist in the map, the supplied default value is entered into the map
-// and returned.
-func (m ComplexKeyMap[K, V]) GetOrDefault(k K, defaultValue V) V {
-	return Map[K, V](m).GetOrDefault(k, defaultValue)
+// already exist in the map, the supplied value is entered into the map and
+// returned.
+func (m ComplexKeyMap[K, V]) GetOrValue(k K, value V) V {
+	return Map[K, V](m).GetOrValue(k, value)
 }
 
 func (m ComplexKeyMap[K, V]) ContainsKey(k K) bool {

@@ -59,12 +59,12 @@ func (m Map[K, V]) GetOrComputeNoError(k K, computeValue func() V) V {
 }
 
 // Returns the value associated with the given key k. If the key does not
-// already exist in the map, the supplied default value is entered into the map
-// and returned.
-func (m Map[K, V]) GetOrDefault(k K, defaultValue V) V {
+// already exist in the map, the supplied value is entered into the map and
+// returned.
+func (m Map[K, V]) GetOrValue(k K, value V) V {
 	v, exists := m[k]
 	if !exists {
-		v = defaultValue
+		v = value
 		m[k] = v
 	}
 	return v
