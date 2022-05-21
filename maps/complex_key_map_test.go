@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/akitasoftware/go-utils/math"
+	"github.com/akitasoftware/go-utils/optionals"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,12 +29,12 @@ func TestBasicComplexKeyMapOperations(t *testing.T) {
 
 	m.Put(foo, 42)
 	assert.Equal(t, ComplexKeyMap[[2]string, int]{foo: 42, bar: 1}, m)
-	assert.Equal(t, m.Get(foo), 42)
+	assert.Equal(t, m.Get(foo), optionals.Some(42))
 	assert.Equal(t, m.GetOrDefault(foo, 19), 42)
 	assert.False(t, m.ContainsKey(baz))
 	assert.Equal(t, m.GetOrDefault(baz, 19), 19)
 	assert.True(t, m.ContainsKey(baz))
-	assert.Equal(t, m.Get(baz), 19)
+	assert.Equal(t, m.Get(baz), optionals.Some(19))
 
 	result, err := m.GetOrCompute(foo, func() (int, error) { return 37, fmt.Errorf("error") })
 	assert.NoError(t, err)
@@ -54,7 +55,7 @@ func TestBasicComplexKeyMapOperations(t *testing.T) {
 	result, err = m.GetOrCompute(qux, func() (int, error) { return 37, nil })
 	assert.NoError(t, err)
 	assert.Equal(t, result, 37)
-	assert.Equal(t, m.Get(qux), 37)
+	assert.Equal(t, m.Get(qux), optionals.Some(37))
 
 	assert.True(t, m.ContainsKey(qux))
 	m.Delete(qux)
@@ -62,7 +63,7 @@ func TestBasicComplexKeyMapOperations(t *testing.T) {
 
 	result = m.GetOrComputeNoError(qux, func() int { return 37 })
 	assert.Equal(t, result, 37)
-	assert.Equal(t, m.Get(qux), 37)
+	assert.Equal(t, m.Get(qux), optionals.Some(37))
 }
 
 func TestComplexKeyMapJson(t *testing.T) {

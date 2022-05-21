@@ -3,6 +3,7 @@ package maps
 import (
 	"encoding/json"
 
+	"github.com/akitasoftware/go-utils/optionals"
 	"github.com/pkg/errors"
 )
 
@@ -28,8 +29,12 @@ func (m ComplexKeyMap[K, V]) Add(other ComplexKeyMap[K, V], onConflict func(v, n
 	}
 }
 
-func (m ComplexKeyMap[K, V]) Get(k K) V {
-	return m[k]
+func (m ComplexKeyMap[K, V]) Get(k K) optionals.Optional[V] {
+	v, exists := m[k]
+	if exists {
+		return optionals.Some(v)
+	}
+	return optionals.None[V]()
 }
 
 // Returns the value associated with the given key k. If the key does not
