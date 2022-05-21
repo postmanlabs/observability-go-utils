@@ -40,6 +40,12 @@ func (m ComplexKeyMap[K, V]) GetOrComputeNoError(k K, computeValue func() V) V {
 }
 
 // Returns the value associated with the given key k. If the key does not
+// already exist in the map, the default Go value is returned.
+func (m ComplexKeyMap[K, V]) GetOrDefault(k K) V {
+	return Map[K, V](m).GetOrDefault(k)
+}
+
+// Returns the value associated with the given key k. If the key does not
 // already exist in the map, the supplied value is entered into the map and
 // returned.
 func (m ComplexKeyMap[K, V]) GetOrValue(k K, value V) V {
