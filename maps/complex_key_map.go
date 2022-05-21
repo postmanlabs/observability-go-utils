@@ -12,82 +12,56 @@ import (
 type ComplexKeyMap[K comparable, V any] map[K]V
 
 func (m ComplexKeyMap[K, V]) Put(k K, v V) {
-	m[k] = v
+	Map[K, V](m).Put(k, v)
 }
 
 func (m ComplexKeyMap[K, V]) Upsert(k K, v V, onConflict func(v, newV V) V) {
-	newV := v
-	if oldV, exists := m[k]; exists {
-		newV = onConflict(oldV, newV)
-	}
-	m[k] = newV
+	Map[K, V](m).Upsert(k, v, onConflict)
 }
 
 func (m ComplexKeyMap[K, V]) Add(other ComplexKeyMap[K, V], onConflict func(v, newV V) V) {
-	for k, v := range other {
-		m.Upsert(k, v, onConflict)
-	}
+	Map[K, V](m).Add(Map[K, V](other), onConflict)
 }
 
 func (m ComplexKeyMap[K, V]) Get(k K) optionals.Optional[V] {
-	v, exists := m[k]
-	if exists {
-		return optionals.Some(v)
-	}
-	return optionals.None[V]()
+	return Map[K, V](m).Get(k)
 }
 
 // Returns the value associated with the given key k. If the key does not
 // already exist in the map, the supplied function is called, and the resulting
 // value is entered into the map and returned.
 func (m ComplexKeyMap[K, V]) GetOrCompute(k K, computeValue func() (V, error)) (V, error) {
-	if v, exists := m[k]; exists {
-		return v, nil
-	}
-
-	v, err := computeValue()
-	if err != nil {
-		return v, err
-	}
-
-	m[k] = v
-	return v, nil
+	return Map[K, V](m).GetOrCompute(k, computeValue)
 }
 
 // A version of GetOrCompute that is guaranteed to not error.
 func (m ComplexKeyMap[K, V]) GetOrComputeNoError(k K, computeValue func() V) V {
-	if v, exists := m[k]; exists {
-		return v
-	}
-
-	v := computeValue()
-	m[k] = v
-	return v
+	return Map[K, V](m).GetOrComputeNoError(k, computeValue)
 }
 
 // Returns the value associated with the given key k. If the key does not
-// already exist in the map, the supplied default value is entered into the map
-// and returned.
-func (m ComplexKeyMap[K, V]) GetOrDefault(k K, defaultValue V) V {
-	v, exists := m[k]
-	if !exists {
-		v = defaultValue
-		m[k] = v
-	}
-	return v
+// already exist in the map, the default Go value is returned.
+func (m ComplexKeyMap[K, V]) GetOrDefault(k K) V {
+	return Map[K, V](m).GetOrDefault(k)
+}
+
+// Returns the value associated with the given key k. If the key does not
+// already exist in the map, the supplied value is entered into the map and
+// returned.
+func (m ComplexKeyMap[K, V]) GetOrValue(k K, value V) V {
+	return Map[K, V](m).GetOrValue(k, value)
 }
 
 func (m ComplexKeyMap[K, V]) ContainsKey(k K) bool {
-	_, exists := m[k]
-	return exists
+	return Map[K, V](m).ContainsKey(k)
 }
 
 func (m ComplexKeyMap[K, V]) Delete(k K) {
-	delete(m, k)
+	Map[K, V](m).Delete(k)
 }
 
 func (m ComplexKeyMap[K, V]) IsEmpty() bool {
-	return len(m) == 0
+	return Map[K, V](m).IsEmpty()
 }
 
 type SliceElt[K comparable, V any] struct {

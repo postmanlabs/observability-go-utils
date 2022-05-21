@@ -30,9 +30,9 @@ func TestBasicComplexKeyMapOperations(t *testing.T) {
 	m.Put(foo, 42)
 	assert.Equal(t, ComplexKeyMap[[2]string, int]{foo: 42, bar: 1}, m)
 	assert.Equal(t, m.Get(foo), optionals.Some(42))
-	assert.Equal(t, m.GetOrDefault(foo, 19), 42)
+	assert.Equal(t, m.GetOrValue(foo, 19), 42)
 	assert.False(t, m.ContainsKey(baz))
-	assert.Equal(t, m.GetOrDefault(baz, 19), 19)
+	assert.Equal(t, m.GetOrValue(baz, 19), 19)
 	assert.True(t, m.ContainsKey(baz))
 	assert.Equal(t, m.Get(baz), optionals.Some(19))
 
