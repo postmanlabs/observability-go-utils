@@ -16,6 +16,10 @@ func NewOrderedSet[T constraints.Ordered](vs ...T) OrderedSet[T] {
 	return OrderedSet[T](NewSet(vs...))
 }
 
+func (s OrderedSet[T]) Equals(other OrderedSet[T]) bool {
+	return Set[T](s).Equals(other.AsSet())
+}
+
 func (s OrderedSet[T]) Contains(v T) bool {
 	return Set[T](s).Contains(v)
 }
@@ -65,7 +69,7 @@ func (s OrderedSet[T]) Clone() OrderedSet[T] {
 	return maps.Clone(s)
 }
 
-// AsSlice returns the set as a sorted slice.
+// Returns the set as a sorted slice.
 func (s OrderedSet[T]) AsSlice() []T {
 	rv := make([]T, 0, len(s))
 	for x := range s {
@@ -73,6 +77,12 @@ func (s OrderedSet[T]) AsSlice() []T {
 	}
 	slices.Sort(rv)
 	return rv
+}
+
+// Returns the set as a Set. Changes to the returned Set will be reflected in
+// this set.
+func (s OrderedSet[T]) AsSet() Set[T] {
+	return Set[T](s)
 }
 
 // Creates a new set from the intersection of sets.

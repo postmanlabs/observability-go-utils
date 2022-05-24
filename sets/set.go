@@ -18,6 +18,18 @@ func NewSet[T comparable](vs ...T) Set[T] {
 	return s
 }
 
+func (s Set[T]) Equals(other Set[T]) bool {
+	if len(s) != len(other) {
+		return false
+	}
+	for elt := range s {
+		if _, exists := other[elt]; !exists {
+			return false
+		}
+	}
+	return true
+}
+
 func (s Set[T]) Contains(v T) bool {
 	return s.ContainsAny(v)
 }
