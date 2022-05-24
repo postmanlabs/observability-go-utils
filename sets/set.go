@@ -95,7 +95,7 @@ func (s Set[T]) Clone() Set[T] {
 // AsSlice returns the set as a slice in a nondeterministic order.
 func (s Set[T]) AsSlice() []T {
 	rv := make([]T, 0, len(s))
-	for x, _ := range s {
+	for x := range s {
 		rv = append(rv, x)
 	}
 	return rv

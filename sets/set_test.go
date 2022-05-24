@@ -26,7 +26,7 @@ func TestBasicSetOperations(t *testing.T) {
 }
 
 func TestSetJson(t *testing.T) {
-	s := NewSet[int](3, 2, 1)
+	s := NewSet(3, 2, 1)
 
 	bs, err := json.Marshal(s)
 	assert.NoError(t, err)

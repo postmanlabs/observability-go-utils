@@ -13,7 +13,7 @@ import (
 type OrderedSet[T constraints.Ordered] map[T]struct{}
 
 func NewOrderedSet[T constraints.Ordered](vs ...T) OrderedSet[T] {
-	return OrderedSet[T](NewSet[T](vs...))
+	return OrderedSet[T](NewSet(vs...))
 }
 
 func (s OrderedSet[T]) Contains(v T) bool {
@@ -68,7 +68,7 @@ func (s OrderedSet[T]) Clone() OrderedSet[T] {
 // AsSlice returns the set as a sorted slice.
 func (s OrderedSet[T]) AsSlice() []T {
 	rv := make([]T, 0, len(s))
-	for x, _ := range s {
+	for x := range s {
 		rv = append(rv, x)
 	}
 	slices.Sort(rv)
