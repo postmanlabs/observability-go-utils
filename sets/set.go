@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"github.com/pkg/errors"
+	"golang.org/x/exp/constraints"
 	"golang.org/x/exp/maps"
 )
 
@@ -111,6 +112,12 @@ func (s Set[T]) AsSlice() []T {
 		rv = append(rv, x)
 	}
 	return rv
+}
+
+// Returns the set as an OrderedSet. Changes to the returned OrderedSet will be
+// reflected in this set.
+func AsOrderedSet[T constraints.Ordered](s Set[T]) OrderedSet[T] {
+	return OrderedSet[T](s)
 }
 
 // Creates a new set from the intersection of sets.
