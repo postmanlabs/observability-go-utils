@@ -26,7 +26,7 @@ func TestBasicOperations(t *testing.T) {
 }
 
 func TestOrderedSetJson(t *testing.T) {
-	s := NewOrderedSet[int](3, 2, 1)
+	s := NewOrderedSet(3, 2, 1)
 
 	bs, err := json.Marshal(s)
 	assert.NoError(t, err)

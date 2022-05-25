@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"github.com/pkg/errors"
+	"golang.org/x/exp/constraints"
 	"golang.org/x/exp/maps"
 )
 
@@ -16,6 +17,18 @@ func NewSet[T comparable](vs ...T) Set[T] {
 		s.Insert(v)
 	}
 	return s
+}
+
+func (s Set[T]) Equals(other Set[T]) bool {
+	if len(s) != len(other) {
+		return false
+	}
+	for elt := range s {
+		if _, exists := other[elt]; !exists {
+			return false
+		}
+	}
+	return true
 }
 
 func (s Set[T]) Contains(v T) bool {
@@ -95,10 +108,16 @@ func (s Set[T]) Clone() Set[T] {
 // AsSlice returns the set as a slice in a nondeterministic order.
 func (s Set[T]) AsSlice() []T {
 	rv := make([]T, 0, len(s))
-	for x, _ := range s {
+	for x := range s {
 		rv = append(rv, x)
 	}
 	return rv
+}
+
+// Returns the set as an OrderedSet. Changes to the returned OrderedSet will be
+// reflected in this set.
+func AsOrderedSet[T constraints.Ordered](s Set[T]) OrderedSet[T] {
+	return OrderedSet[T](s)
 }
 
 // Creates a new set from the intersection of sets.
@@ -119,4 +138,14 @@ func Intersect[T comparable](sets ...Set[T]) Set[T] {
 	}
 
 	return base
+}
+
+// Applies the given function to each element of a set. Returns the resulting
+// set of function outputs.
+func Map[T, U comparable](ts Set[T], f func(T) U) Set[U] {
+	result := NewSet[U]()
+	for t := range ts {
+		result.Insert(f(t))
+	}
+	return result
 }
