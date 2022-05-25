@@ -139,3 +139,13 @@ func Intersect[T comparable](sets ...Set[T]) Set[T] {
 
 	return base
 }
+
+// Applies the given function to each element of a set. Returns the resulting
+// set of function outputs.
+func Map[T, U comparable](ts Set[T], f func(T) U) Set[U] {
+	result := NewSet[U]()
+	for t := range ts {
+		result.Insert(f(t))
+	}
+	return result
+}

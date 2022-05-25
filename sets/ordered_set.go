@@ -104,3 +104,9 @@ func IntersectOrdered[T constraints.Ordered](sets ...OrderedSet[T]) OrderedSet[T
 
 	return base
 }
+
+// Applies the given function to each element of an ordered set. Returns the
+// resulting set of function outputs.
+func MapOrdered[T, U constraints.Ordered](ts OrderedSet[T], f func(T) U) OrderedSet[U] {
+	return AsOrderedSet(Map(ts.AsSet(), f))
+}
