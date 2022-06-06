@@ -2,10 +2,16 @@ package queues
 
 import "github.com/akitasoftware/go-utils/optionals"
 
+// A FIFO queue.
+//
+// XXX Current implementation should be revisited: may not have great memory
+// performance.
 type Queue[T any] struct {
 	elements []T
 }
 
+// Returns a new FIFO queue containing the given elements. Equivalent to
+// creating an empty queue and calling Enqueue with each element in turn.
 func NewQueue[T any](elements ...T) *Queue[T] {
 	return &Queue[T]{
 		elements: elements,
