@@ -20,6 +20,14 @@ func (s OrderedSet[T]) Equals(other OrderedSet[T]) bool {
 	return Set[T](s).Equals(other.AsSet())
 }
 
+func (s OrderedSet[T]) IsEmpty() bool {
+	return Set[T](s).IsEmpty()
+}
+
+func (s OrderedSet[T]) Size() int {
+	return Set[T](s).Size()
+}
+
 func (s OrderedSet[T]) Contains(v T) bool {
 	return Set[T](s).Contains(v)
 }

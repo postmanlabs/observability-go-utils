@@ -31,6 +31,14 @@ func (s Set[T]) Equals(other Set[T]) bool {
 	return true
 }
 
+func (s Set[T]) IsEmpty() bool {
+	return len(s) == 0
+}
+
+func (s Set[T]) Size() int {
+	return len(s)
+}
+
 func (s Set[T]) Contains(v T) bool {
 	return s.ContainsAny(v)
 }
