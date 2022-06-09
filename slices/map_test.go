@@ -41,7 +41,10 @@ func TestMap(t *testing.T) {
 
 	for _, tc := range testCases {
 		actual := Map(tc.slice, tc.f)
-		assert.Equal(t, tc.expected, actual, tc.name)
+		assert.Equal(t, tc.expected, actual, "[%s] %s", "Map", tc.name)
+
+		actual = MapInParallel(tc.slice, tc.f)
+		assert.Equal(t, tc.expected, actual, "[%s] %s", "MapInParallel", tc.name)
 	}
 }
 
@@ -90,9 +93,16 @@ func TestMapWithErr(t *testing.T) {
 	for _, tc := range testCases {
 		actual, err := MapWithErr(tc.slice, tc.f)
 		if tc.expectedErr {
-			assert.Error(t, err, tc.name)
+			assert.Error(t, err, "[%s] %s", "MapWithErr", tc.name)
 		} else {
-			assert.Equal(t, tc.expected, actual, tc.name)
+			assert.Equal(t, tc.expected, actual, "[%s] %s", "MapWithErr", tc.name)
+		}
+
+		actual, err = MapWithErrInParallel(tc.slice, tc.f)
+		if tc.expectedErr {
+			assert.Error(t, err, "[%s] %s", "MapWithErrInParallel", tc.name)
+		} else {
+			assert.Equal(t, tc.expected, actual, "[%s] %s", "MapWithErrInParallel", tc.name)
 		}
 	}
 }
