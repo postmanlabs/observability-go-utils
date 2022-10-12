@@ -1,5 +1,11 @@
 package optionals
 
+import "encoding/json"
+
+// An Optional[T] is an option type.
+//
+// The JSON serialization/deserialization of an Optional[T] is compatible with
+// that of a *T.
 type Optional[T any] struct {
 	value *T
 }
@@ -71,4 +77,12 @@ func Map[T, U any](opt Optional[T], f func(T) U) Optional[U] {
 	}
 
 	return Some(f(*opt.value))
+}
+
+func (opt Optional[T]) MarshalJSON() ([]byte, error) {
+	return json.Marshal(opt.value)
+}
+
+func (opt *Optional[T]) UnmarshalJSON(data []byte) error {
+	return json.Unmarshal(data, &opt.value)
 }
