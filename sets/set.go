@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"sort"
 
+	"github.com/akitasoftware/go-utils/optionals"
 	"github.com/pkg/errors"
 	"golang.org/x/exp/constraints"
 	"golang.org/x/exp/maps"
@@ -37,6 +38,15 @@ func (s Set[T]) IsEmpty() bool {
 
 func (s Set[T]) Size() int {
 	return len(s)
+}
+
+// Converts v to an optional value, depending on whether it is a member of s.
+// Returns Some(v) if s contains v. Returns None otherwise.
+func (s Set[T]) Get(v T) optionals.Optional[T] {
+	if s.Contains(v) {
+		return optionals.Some(v)
+	}
+	return optionals.None[T]()
 }
 
 func (s Set[T]) Contains(v T) bool {
