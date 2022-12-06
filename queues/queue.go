@@ -6,15 +6,15 @@ import (
 
 // A FIFO queue.
 type Queue[T any] interface {
-	// Adds an element to the tail of the queue.
+	// Adds an element to the back of the queue.
 	Enqueue(T)
 
-	// Removes and returns an element from the head of the queue.  Returns None
-	// if the queue is empty.
+	// Removes and returns an element from the front of the queue.
+	// Returns None if the queue is empty.
 	Dequeue() optionals.Optional[T]
 
-	// Returns (but does not remove) an element from the head of the queue.
-	// Returns None if the queue is empty.
+	// Returns (but does not remove) an element from the front of the
+	//  queue. Returns None if the queue is empty.
 	Peek() optionals.Optional[T]
 
 	// Returns true if the queue is empty.
@@ -23,7 +23,8 @@ type Queue[T any] interface {
 	// Returns the length of the queue.
 	Size() int
 
-	// Iterates through the queue from head to tail.
+	// Calls the given function with each element in the queue, from
+	// front to back.
 	ForEach(func(T))
 }
 
