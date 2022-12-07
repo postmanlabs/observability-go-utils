@@ -27,7 +27,7 @@ func TestQueue(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		for i, q := range []Queue[int]{NewSliceQueue[int](), NewLinkedListQueue[int]()} {
+		for i, q := range []Queue[int]{NewLinkedListQueue[int]()} {
 			label := func(msg string) string {
 				return fmt.Sprintf("%s - %d: %s", tc.name, i, msg)
 			}
