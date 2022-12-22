@@ -63,6 +63,15 @@ func (opt Optional[T]) GetOrComputeNoError(computeValue func() T) T {
 	return *opt.value
 }
 
+// Converts to a *T. If the Optional is Some, its value is copied.
+func (opt Optional[T]) ToPtr() *T {
+	val, exists := opt.Get()
+	if exists {
+		return &val
+	}
+	return nil
+}
+
 func Bind[T, U any](opt Optional[T], f func(T) Optional[U]) Optional[U] {
 	if opt.IsNone() {
 		return None[U]()
@@ -77,6 +86,14 @@ func Map[T, U any](opt Optional[T], f func(T) U) Optional[U] {
 	}
 
 	return Some(f(*opt.value))
+}
+
+func ToOptional[T any](ptr *T) Optional[T] {
+	if ptr != nil {
+		return Some(*ptr)
+	}
+
+	return None[T]()
 }
 
 func (opt Optional[T]) MarshalJSON() ([]byte, error) {
