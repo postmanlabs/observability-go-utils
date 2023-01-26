@@ -12,6 +12,35 @@ func (m Map[K, V]) Put(k K, v V) {
 	m[k] = v
 }
 
+// If the given key k is not in the map, the given function is called to compute
+// its value. If the function returns successfully, the resulting value is
+// entered into the map; otherwise, the function's error is returned. If the
+// given key k is in the map, then the map will remain unchanged, and the value
+// associated with k is returned.
+func (m Map[K, V]) ComputeIfAbsent(k K, computeValue func() (V, error)) (V, error) {
+	if v, ok := m[k]; ok {
+		return v, nil
+	}
+
+	v, err := computeValue()
+	if err != nil {
+		return v, err
+	}
+	m[k] = v
+	return v, nil
+}
+
+// A version of ComputeIfAbsent that is guaranteed to not error.
+func (m Map[K, V]) ComputeIfAbsentNoError(k K, computeValue func() V) V {
+	if v, ok := m[k]; ok {
+		return v
+	}
+
+	v := computeValue()
+	m[k] = v
+	return v
+}
+
 func (m Map[K, V]) Upsert(k K, v V, onConflict func(v, newV V) V) {
 	newV := v
 	if oldV, exists := m[k]; exists {
