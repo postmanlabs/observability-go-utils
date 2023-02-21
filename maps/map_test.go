@@ -20,4 +20,8 @@ func TestBasicOps(t *testing.T) {
 	sortedKeys := m.Keys()
 	sort.Strings(sortedKeys)
 	assert.Equal(t, []string{"bar", "foo"}, sortedKeys)
+
+	sortedValues := m.Values()
+	sort.Ints(sortedValues)
+	assert.Equal(t, []int{1, 3}, sortedValues)
 }
