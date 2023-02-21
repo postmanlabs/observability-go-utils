@@ -104,3 +104,11 @@ func (m Map[K, V]) Keys() []K {
 	}
 	return keys
 }
+
+func (m Map[K, V]) Values() []V {
+	values := make([]V, 0, len(m))
+	for _, v := range m {
+		values = append(values, v)
+	}
+	return values
+}
