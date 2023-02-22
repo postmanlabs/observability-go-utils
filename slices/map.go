@@ -36,7 +36,7 @@ func FilterMapWithErr[T, U any](slice []T, f func(T) (optionals.Optional[U], err
 		return nil, nil
 	}
 
-	result := make([]U, len(slice))
+	result := make([]U, 0, len(slice))
 	for _, t := range slice {
 		u_opt, err := f(t)
 		if err != nil {
