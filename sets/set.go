@@ -161,9 +161,19 @@ func Intersect[T comparable](sets ...Set[T]) Set[T] {
 // Applies the given function to each element of a set. Returns the resulting
 // set of function outputs.
 func Map[T, U comparable](ts Set[T], f func(T) U) Set[U] {
+	return FilterMap(ts, func(t T) optionals.Optional[U] {
+		return optionals.Some(f(t))
+	})
+}
+
+// Applies the given function to each element of a set. Removes any None results
+// and returns the rest.
+func FilterMap[T, U comparable](ts Set[T], f func(T) optionals.Optional[U]) Set[U] {
 	result := NewSet[U]()
 	for t := range ts {
-		result.Insert(f(t))
+		if u, exists := f(t).Get(); exists {
+			result.Insert(u)
+		}
 	}
 	return result
 }
