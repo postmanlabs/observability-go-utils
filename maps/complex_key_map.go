@@ -11,6 +11,10 @@ import (
 // a list of key-value pairs.
 type ComplexKeyMap[K comparable, V any] map[K]V
 
+func NewComplexKeyMap[K comparable, V any]() ComplexKeyMap[K, V] {
+	return ComplexKeyMap[K, V]{}
+}
+
 func (m ComplexKeyMap[K, V]) Put(k K, v V) {
 	Map[K, V](m).Put(k, v)
 }
@@ -62,6 +66,10 @@ func (m ComplexKeyMap[K, V]) Delete(k K) {
 
 func (m ComplexKeyMap[K, V]) IsEmpty() bool {
 	return Map[K, V](m).IsEmpty()
+}
+
+func (m ComplexKeyMap[K, V]) Size() int {
+	return Map[K, V](m).Size()
 }
 
 type SliceElt[K comparable, V any] struct {

@@ -4,6 +4,10 @@ import "github.com/akitasoftware/go-utils/optionals"
 
 type Map[K comparable, V any] map[K]V
 
+func NewMap[K comparable, V any]() Map[K, V] {
+	return Map[K, V]{}
+}
+
 func (m Map[K, V]) Put(k K, v V) {
 	m[k] = v
 }
@@ -87,4 +91,24 @@ func (m Map[K, V]) Delete(k K) {
 
 func (m Map[K, V]) IsEmpty() bool {
 	return len(m) == 0
+}
+
+func (m Map[K, V]) Size() int {
+	return len(m)
+}
+
+func (m Map[K, V]) Keys() []K {
+	keys := make([]K, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
+func (m Map[K, V]) Values() []V {
+	values := make([]V, 0, len(m))
+	for _, v := range m {
+		values = append(values, v)
+	}
+	return values
 }
