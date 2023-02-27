@@ -54,7 +54,7 @@ func FilterMapWithErr[T, U any](slice []T, f func(T) (optionals.Optional[U], err
 }
 
 // Like FilterMap, but f also takes in the element's index.
-func FilterIndexMap[T1, T2 any](slice []T1, f func(int, T1) optionals.Optional[T2]) []T2 {
+func FilterMapIndex[T1, T2 any](slice []T1, f func(int, T1) optionals.Optional[T2]) []T2 {
 	result, _ := FilterMapIndexWithErr(slice, func(idx int, t T1) (optionals.Optional[T2], error) {
 		return f(idx, t), nil
 	})
