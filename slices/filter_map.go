@@ -5,7 +5,7 @@ import "github.com/akitasoftware/go-utils/optionals"
 // Applies f to each element of slice in order, removes any None results, and
 // returns the rest.
 func FilterMap[T1, T2 any](slice []T1, f func(T1) optionals.Optional[T2]) []T2 {
-	result, _ := FilterMapWithErr(slice, func(t T1) (optionals.Optional[T2], error) {
+	result, _ := FilterMapIndexWithErr(slice, func(_ int, t T1) (optionals.Optional[T2], error) {
 		return f(t), nil
 	})
 	return result
