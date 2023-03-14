@@ -10,8 +10,9 @@ func Map[T1, T2 any](slice []T1, f func(T1) T2) []T2 {
 	return result
 }
 
-// Apply f to each element of slice in order, returning the results.  Returns
-// an error if f returns a non-nil error on any element.
+// Apply f to each element of slice in order, returning the results. If f
+// returns a non-nil error on any element, iteration immediately stops, and the
+// error is returned.
 func MapWithErr[T1, T2 any](slice []T1, f func(T1) (T2, error)) (rv []T2, err error) {
 	return FilterMapIndexWithErr(slice, func(_ int, t1 T1) (optionals.Optional[T2], error) {
 		t2, err := f(t1)
