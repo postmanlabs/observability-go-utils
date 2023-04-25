@@ -80,12 +80,32 @@ func Bind[T, U any](opt Optional[T], f func(T) Optional[U]) Optional[U] {
 	return f(*opt.value)
 }
 
+func BindErr[T, U any](opt Optional[T], f func(T) (Optional[U], error)) (Optional[U], error) {
+	if opt.IsNone() {
+		return None[U](), nil
+	}
+
+	return f(*opt.value)
+}
+
 func Map[T, U any](opt Optional[T], f func(T) U) Optional[U] {
 	if opt.IsNone() {
 		return None[U]()
 	}
 
 	return Some(f(*opt.value))
+}
+
+func MapErr[T, U any](opt Optional[T], f func(T) (U, error)) (Optional[U], error) {
+	if opt.IsNone() {
+		return None[U](), nil
+	}
+
+	result, err := f(*opt.value)
+	if err != nil {
+		return None[U](), err
+	}
+	return Some(result), nil
 }
 
 func ToOptional[T any](ptr *T) Optional[T] {
