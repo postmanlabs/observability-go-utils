@@ -85,6 +85,12 @@ func (s Set[T]) Delete(vs ...T) {
 	}
 }
 
+func (s Set[T]) Clear() {
+	for v := range s {
+		delete(s, v)
+	}
+}
+
 func (s Set[T]) Union(other Set[T]) {
 	for k := range other {
 		s.Insert(k)

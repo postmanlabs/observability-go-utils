@@ -1,6 +1,9 @@
 package maps
 
-import "github.com/akitasoftware/go-utils/optionals"
+import (
+	"github.com/akitasoftware/go-utils/optionals"
+	"github.com/akitasoftware/go-utils/sets"
+)
 
 type Map[K comparable, V any] map[K]V
 
@@ -101,6 +104,14 @@ func (m Map[K, V]) Keys() []K {
 	keys := make([]K, 0, len(m))
 	for k := range m {
 		keys = append(keys, k)
+	}
+	return keys
+}
+
+func (m Map[K, V]) KeySet() sets.Set[K] {
+	keys := sets.NewSet[K]()
+	for k := range m {
+		keys.Insert(k)
 	}
 	return keys
 }
