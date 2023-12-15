@@ -23,6 +23,26 @@ func (m Map[K, V]) Upsert(k K, v V, onConflict func(v, newV V) V) {
 	m[k] = newV
 }
 
+// If the key k is not already in the map, then it is entered into the map with
+// the value v.
+func (m Map[K, V]) PutIfAbsent(k K, v V) {
+	m.GetOrValue(k, v)
+}
+
+// If the key k is not already in the map, then it is entered into the map with
+// the result of calling the supplied function. If the function returns an
+// error, then the map is not modified, and the error is returned.
+func (m Map[K, V]) ComputeIfAbsent(k K, computeValue func() (V, error)) error {
+	_, err := m.GetOrCompute(k, computeValue)
+	return err
+}
+
+// If the key k is not already in the map, then it is entered into the map with
+// the result of calling the supplied function.
+func (m Map[K, V]) ComputeIfAbsentNoError(k K, computeValue func() V) {
+	m.GetOrComputeNoError(k, computeValue)
+}
+
 func (m Map[K, V]) Add(other Map[K, V], onConflict func(v, newV V) V) {
 	for k, v := range other {
 		m.Upsert(k, v, onConflict)
@@ -54,7 +74,9 @@ func (m Map[K, V]) GetOrCompute(k K, computeValue func() (V, error)) (V, error) 
 	return v, nil
 }
 
-// A version of GetOrCompute that is guaranteed to not error.
+// Returns the value associated with the given key k. If the key does not
+// already exist in the map, the supplied function is called, and the resulting
+// value is entered into the map and returned.
 func (m Map[K, V]) GetOrComputeNoError(k K, computeValue func() V) V {
 	if v, exists := m[k]; exists {
 		return v
