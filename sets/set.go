@@ -126,7 +126,11 @@ func (s *Set[T]) UnmarshalJSON(text []byte) error {
 }
 
 func (s Set[T]) Clone() Set[T] {
-	return maps.Clone(s)
+	clonedMap := maps.Clone(s)
+	if clonedMap == nil {
+		clonedMap = NewSet[T]()
+	}
+	return clonedMap
 }
 
 // AsSlice returns the set as a slice in a nondeterministic order.

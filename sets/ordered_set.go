@@ -74,7 +74,11 @@ func (s *OrderedSet[T]) UnmarshalJSON(text []byte) error {
 }
 
 func (s OrderedSet[T]) Clone() OrderedSet[T] {
-	return maps.Clone(s)
+	clonedMap := maps.Clone(s)
+	if clonedMap == nil {
+		clonedMap = NewOrderedSet[T]()
+	}
+	return clonedMap
 }
 
 // Returns the set as a sorted slice.
