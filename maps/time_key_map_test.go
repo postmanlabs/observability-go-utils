@@ -16,7 +16,7 @@ func TestPutAndGet(t *testing.T) {
 	tm := NewTimeMap[int]()
 	now := time.Now()
 	tm.Put(now, 123)
-	val, exists := tm.Get(now)
+	val, exists := tm.Get(now).Get()
 	assert.True(t, exists)
 	assert.Equal(t, 123, val)
 }
@@ -28,7 +28,7 @@ func TestUpsert(t *testing.T) {
 	tm.Upsert(now, 2, func(oldVal, newVal int) int {
 		return oldVal + newVal
 	})
-	val, exists := tm.Get(now)
+	val, exists := tm.Get(now).Get()
 	assert.True(t, exists)
 	assert.Equal(t, 3, val)
 }
@@ -40,7 +40,7 @@ func TestComputeIfAbsent(t *testing.T) {
 		return 42, nil
 	})
 	assert.NoError(t, err)
-	val, exists := tm.Get(now)
+	val, exists := tm.Get(now).Get()
 	assert.True(t, exists)
 	assert.Equal(t, 42, val)
 }
@@ -51,7 +51,7 @@ func TestComputeIfAbsentNoError(t *testing.T) {
 	tm.ComputeIfAbsentNoError(now, func() int {
 		return 42
 	})
-	val, exists := tm.Get(now)
+	val, exists := tm.Get(now).Get()
 	assert.True(t, exists)
 	assert.Equal(t, 42, val)
 }
@@ -73,7 +73,7 @@ func TestDelete(t *testing.T) {
 	now := time.Now()
 	tm.Put(now, 123)
 	tm.Delete(now)
-	_, exists := tm.Get(now)
+	_, exists := tm.Get(now).Get()
 	assert.False(t, exists)
 }
 
