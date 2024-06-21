@@ -3,7 +3,9 @@ package maps
 import (
 	"time"
 
+	"github.com/akitasoftware/go-utils/optionals"
 	"github.com/akitasoftware/go-utils/sets"
+	"github.com/akitasoftware/go-utils/slices"
 )
 
 func getInternalMapKey(t time.Time) int64 {
@@ -15,27 +17,29 @@ func getReverseKey(key int64) time.Time {
 }
 
 type TimeMap[V any] struct {
-	internalMap map[int64]V
+	internalMap Map[int64, V]
 }
 
 func NewTimeMap[V any]() TimeMap[V] {
 	return TimeMap[V]{
-		internalMap: make(map[int64]V),
+		internalMap: NewMap[int64, V](),
 	}
 }
 
-func (tm TimeMap[V]) Put(k time.Time, v V) {
+func (m TimeMap[V]) Put(k time.Time, v V) {
 	key := getInternalMapKey(k)
-	tm.internalMap[key] = v
+	m.internalMap.Put(key, v)
 }
 
 func (m TimeMap[V]) Upsert(k time.Time, v V, onConflict func(v, newV V) V) {
-	newV := v
 	key := getInternalMapKey(k)
-	if oldV, exists := m.internalMap[key]; exists {
-		newV = onConflict(oldV, newV)
-	}
-	m.internalMap[key] = newV
+	m.internalMap.Upsert(key, v, onConflict)
+}
+
+// If the key k is not already in the map, then it is entered into the map with
+// the value v.
+func (m TimeMap[V]) PutIfAbsent(k time.Time, v V) {
+	m.GetOrValue(k, v)
 }
 
 // If the key k is not already in the map, then it is entered into the map with
@@ -53,16 +57,12 @@ func (m TimeMap[V]) ComputeIfAbsentNoError(k time.Time, computeValue func() V) {
 }
 
 func (m TimeMap[V]) Add(other TimeMap[V], onConflict func(v, newV V) V) {
-	for k, v := range other.internalMap {
-		timeKey := getReverseKey(k)
-		m.Upsert(timeKey, v, onConflict)
-	}
+	m.internalMap.Add(other.internalMap, onConflict)
 }
 
-func (tm TimeMap[V]) Get(k time.Time) (V, bool) {
+func (m TimeMap[V]) Get(k time.Time) optionals.Optional[V] {
 	key := getInternalMapKey(k)
-	v, exists := tm.internalMap[key]
-	return v, exists
+	return m.internalMap.Get(key)
 }
 
 // Returns the value associated with the given key k. If the key does not
@@ -70,17 +70,7 @@ func (tm TimeMap[V]) Get(k time.Time) (V, bool) {
 // value is entered into the map and returned.
 func (m TimeMap[V]) GetOrCompute(k time.Time, computeValue func() (V, error)) (V, error) {
 	key := getInternalMapKey(k)
-	if v, exists := m.internalMap[key]; exists {
-		return v, nil
-	}
-
-	v, err := computeValue()
-	if err != nil {
-		return v, err
-	}
-
-	m.internalMap[key] = v
-	return v, nil
+	return m.internalMap.GetOrCompute(key, computeValue)
 }
 
 // Returns the value associated with the given key k. If the key does not
@@ -88,20 +78,14 @@ func (m TimeMap[V]) GetOrCompute(k time.Time, computeValue func() (V, error)) (V
 // value is entered into the map and returned.
 func (m TimeMap[V]) GetOrComputeNoError(k time.Time, computeValue func() V) V {
 	key := getInternalMapKey(k)
-	if v, exists := m.internalMap[key]; exists {
-		return v
-	}
-
-	v := computeValue()
-	m.internalMap[key] = v
-	return v
+	return m.internalMap.GetOrComputeNoError(key, computeValue)
 }
 
 // Returns the value associated with the given key k. If the key does not
 // already exist in the map, the default Go value is returned.
 func (m TimeMap[V]) GetOrDefault(k time.Time) V {
 	key := getInternalMapKey(k)
-	return m.internalMap[key]
+	return m.internalMap.GetOrDefault(key)
 }
 
 // Returns the value associated with the given key k. If the key does not
@@ -109,40 +93,30 @@ func (m TimeMap[V]) GetOrDefault(k time.Time) V {
 // returned.
 func (m TimeMap[V]) GetOrValue(k time.Time, value V) V {
 	key := getInternalMapKey(k)
-	v, exists := m.internalMap[key]
-	if !exists {
-		v = value
-		m.internalMap[key] = v
-	}
-	return v
+	return m.internalMap.GetOrValue(key, value)
 }
 
 func (m TimeMap[V]) ContainsKey(k time.Time) bool {
 	key := getInternalMapKey(k)
-	_, exists := m.internalMap[key]
-	return exists
+	return m.internalMap.ContainsKey(key)
 }
 
 func (m TimeMap[V]) Delete(k time.Time) {
 	key := getInternalMapKey(k)
-	delete(m.internalMap, key)
+	m.internalMap.Delete(key)
 }
 
 func (m TimeMap[V]) IsEmpty() bool {
-	return len(m.internalMap) == 0
+	return m.internalMap.IsEmpty()
 }
 
 func (m TimeMap[V]) Size() int {
-	return len(m.internalMap)
+	return m.internalMap.Size()
 }
 
 func (m TimeMap[V]) Keys() []time.Time {
-	keys := make([]time.Time, 0, len(m.internalMap))
-	for k := range m.internalMap {
-		timeKey := getReverseKey(k)
-		keys = append(keys, timeKey)
-	}
-	return keys
+	keys := m.internalMap.Keys()
+	return slices.Map(keys, getReverseKey)
 }
 
 func (m TimeMap[V]) KeySet() sets.Set[time.Time] {
@@ -155,9 +129,5 @@ func (m TimeMap[V]) KeySet() sets.Set[time.Time] {
 }
 
 func (m TimeMap[V]) Values() []V {
-	values := make([]V, 0, len(m.internalMap))
-	for _, v := range m.internalMap {
-		values = append(values, v)
-	}
-	return values
+	return m.internalMap.Values()
 }
