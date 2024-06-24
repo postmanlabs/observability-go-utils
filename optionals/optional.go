@@ -4,8 +4,8 @@ import "encoding/json"
 
 // An Optional[T] is an option type.
 //
-// The JSON serialization/deserialization of an Optional[T] is compatible with
-// that of a *T.
+// The JSON and YAML serialization/deserialization of an Optional[T] are
+// compatible with that of a *T.
 type Optional[T any] struct {
 	value *T
 }
@@ -102,4 +102,12 @@ func (opt Optional[T]) MarshalJSON() ([]byte, error) {
 
 func (opt *Optional[T]) UnmarshalJSON(data []byte) error {
 	return json.Unmarshal(data, &opt.value)
+}
+
+func (opt Optional[T]) MarshalYAML() (interface{}, error) {
+	return opt.value, nil
+}
+
+func (opt *Optional[T]) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	return unmarshal(&opt.value)
 }
