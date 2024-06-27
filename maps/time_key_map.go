@@ -39,21 +39,23 @@ func (m TimeMap[V]) Upsert(k time.Time, v V, onConflict func(v, newV V) V) {
 // If the key k is not already in the map, then it is entered into the map with
 // the value v.
 func (m TimeMap[V]) PutIfAbsent(k time.Time, v V) {
-	m.GetOrValue(k, v)
+	key := getInternalMapKey(k)
+	m.internalMap.PutIfAbsent(key, v)
 }
 
 // If the key k is not already in the map, then it is entered into the map with
 // the result of calling the supplied function. If the function returns an
 // error, then the map is not modified, and the error is returned.
 func (m TimeMap[V]) ComputeIfAbsent(k time.Time, computeValue func() (V, error)) error {
-	_, err := m.GetOrCompute(k, computeValue)
-	return err
+	key := getInternalMapKey(k)
+	return m.internalMap.ComputeIfAbsent(key, computeValue)
 }
 
 // If the key k is not already in the map, then it is entered into the map with
 // the result of calling the supplied function.
 func (m TimeMap[V]) ComputeIfAbsentNoError(k time.Time, computeValue func() V) {
-	m.GetOrComputeNoError(k, computeValue)
+	key := getInternalMapKey(k)
+	m.internalMap.ComputeIfAbsentNoError(key, computeValue)
 }
 
 func (m TimeMap[V]) Add(other TimeMap[V], onConflict func(v, newV V) V) {
