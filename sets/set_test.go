@@ -2,8 +2,10 @@ package sets
 
 import (
 	"encoding/json"
+	"strconv"
 	"testing"
 
+	"github.com/akitasoftware/go-utils/optionals"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -65,4 +67,30 @@ func TestSetIntersect(t *testing.T) {
 		intersected := Intersect(tc.sets...)
 		assert.Equal(t, tc.expected, intersected, tc.name)
 	}
+}
+
+func TestSetFromSlice(t *testing.T) {
+	slice := []string{"0x1", "0x2", "0x3", "0xf", "xyz"}
+
+	e1 := NewSet[int](0, 1, 2, 3, 15)
+	s1 := FromSlice(slice, func(s string) int {
+		v, err := strconv.ParseInt(s, 0, 0)
+		if err != nil {
+			return 0
+		} else {
+			return int(v)
+		}
+	})
+	assert.Equal(t, e1, s1)
+
+	e2 := NewSet[int](1, 2, 3)
+	s2 := FromFilteredSlice(slice, func(s string) optionals.Optional[int] {
+		v, err := strconv.ParseInt(s, 0, 0)
+		if err != nil || v > 10 {
+			return optionals.None[int]()
+		} else {
+			return optionals.Some(int(v))
+		}
+	})
+	assert.Equal(t, e2, s2)
 }

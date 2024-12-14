@@ -20,6 +20,28 @@ func NewSet[T comparable](vs ...T) Set[T] {
 	return s
 }
 
+// Create a set from a slice, applying a mapping function first to
+// translate to a comparable type.
+func FromSlice[T1 any, T2 comparable](vs []T1, f func(T1) T2) Set[T2] {
+	s := make(Set[T2], len(vs))
+	for _, v := range vs {
+		s.Insert(f(v))
+	}
+	return s
+}
+
+// Applies f to each element of the slice in order, removes any None results,
+// and converts the Some results to a Set.
+func FromFilteredSlice[T1 any, T2 comparable](vs []T1, f func(T1) optionals.Optional[T2]) Set[T2] {
+	s := make(Set[T2], len(vs))
+	for _, v := range vs {
+		if u, exists := f(v).Get(); exists {
+			s.Insert(u)
+		}
+	}
+	return s
+}
+
 func (s Set[T]) Equals(other Set[T]) bool {
 	if len(s) != len(other) {
 		return false
